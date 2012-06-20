@@ -13,8 +13,6 @@ from django.utils import encoding
 from .invalidation import invalidator, flush_key, make_key, byid
 from django.contrib.contenttypes.models import ContentType
 
-from .settings import CACHE_DEBUG, CACHE_DEBUG_VERBOSE
-
 from datetime import timedelta
 
 try:
@@ -130,8 +128,6 @@ class CachingManager(models.Manager):
         This effectively flushes all queries linked to a given model.
         """
         model_key = self.model._model_key()
-        if CACHE_DEBUG_VERBOSE:
-            log.debug("Invalidating model %s" % model_key[2:])
         if not hasattr(self.model, '_model_key'):
             raise Exception((
                 "The model Manager of %s uses caching, but the " + \
@@ -183,8 +179,6 @@ class CacheMachine(object):
             self.cached = None
 
         if self.cached is not None and not isinstance(self.cached, int):
-            if CACHE_DEBUG:
-                log.debug('cache hit: %s' % self.query_string)
             if isinstance(self.cached, EmptyQuerySet):
                 raise StopIteration
             for obj in self.cached:
@@ -753,12 +747,8 @@ def cached(function, key_, duration=None):
     key = _function_cache_key(key_)
     val = cache.get(key)
     if val is None:
-        if CACHE_DEBUG:
-            log.debug('cache miss for %s' % key)
         val = function()
         cache.set(key, val, duration)# consider using setex here with redis
-    elif CACHE_DEBUG:
-        log.debug('cache hit for %s' % key)
     return val
 
 
