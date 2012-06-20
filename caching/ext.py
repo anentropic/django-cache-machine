@@ -4,7 +4,7 @@ from django.utils import encoding
 from jinja2 import nodes
 from jinja2.ext import Extension
 
-import caching.base
+from . import base
 
 
 class FragmentCacheExtension(Extension):
@@ -71,7 +71,7 @@ class FragmentCacheExtension(Extension):
             return caller()
         extra = ':'.join(map(encoding.smart_str, extra))
         key = 'fragment:%s:%s' % (name, extra)
-        return caching.base.cached_with(obj, caller, key, timeout)
+        return base.cached_with(obj, caller, key, timeout)
 
 
 # Nice import name.
